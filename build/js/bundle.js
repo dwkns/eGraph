@@ -24662,11 +24662,135 @@
      */
     Chart.layoutService = Chart.layouts;
 
+    /*eslint-disable no-console*/
+
+    chart.vLine = chart.vLine || {};
+
+    function pointInRectange(point, rectangle) {
+      if (point.x >= rectangle.left && point.x <= rectangle.right && point.y <= rectangle.bottom && point.y >= rectangle.top) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    var vLine = {
+      id: 'vLine',
+      showTooltip: false,
+      tooltipWidth: 120,
+      point: {
+        x: 0,
+        y: 0
+      },
+      dataAtCurrentPosition: {
+        x: 0,
+        y: 0
+      },
+      lineStrokeStyle: 'black',
+      lineWidth: 0.5,
+      // beforeInit: function(chartInstance, pluginOptions)
+      beforeInit: function (chartInstance) {
+        this.ensureTooltipElementExists(chartInstance);
+        this.chartArea = chartInstance; // ensure that chartArea is not undefined.
+      },
+      // beforeEvent: function(chartInstance, event, pluginOptions)
+      beforeEvent: function (chartInstance, event) {
+        if (event.type === 'mousemove') {
+          this.currentEvent = event;
+          this.point = {
+            x: event.x,
+            y: event.y
+          };
+          this.chartArea = event.chart.chartArea;
+
+          if (pointInRectange(this.point, this.chartArea)) {
+            this.showTooltip = true;
+          } else {
+            this.showTooltip = false;
+            this.tooltipElement.style.opacity = 0;
+          }
+
+          this.dataAtCurrentPosition = this.getDataAtXpos(chartInstance, event);
+        }
+      },
+      // afterDraw: function(chartInstance, easingValue, pluginOptions)
+      afterDraw: function (chartInstance) {
+        // console.log('afterDraw');
+        if (this.showTooltip) {
+          var ctx = chartInstance.chart.ctx;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(this.point.x, this.chartArea.bottom);
+          ctx.lineTo(this.point.x, this.chartArea.top);
+          ctx.strokeStyle = this.lineStrokeStyle;
+          ctx.lineWidth = this.lineWidth;
+          ctx.stroke();
+          ctx.restore();
+          let tooltipPosition = this.determineTooltipPosition(chartInstance, this.point);
+          this.tooltipElement.innerHTML = `${this.getTooltipContent()}`;
+          this.tooltipElement.style.opacity = 1;
+          this.tooltipElement.style.position = 'absolute';
+          this.tooltipElement.style.width = this.tooltipWidth;
+          this.tooltipElement.style.backgroundColor = 'red';
+          this.tooltipElement.style.pointerEvents = 'none';
+          this.tooltipElement.style.left = tooltipPosition.x + 'px';
+          this.tooltipElement.style.top = tooltipPosition.y + 'px';
+        }
+      },
+
+      getTooltipContent() {
+        const distance = this.dataAtCurrentPosition.x;
+        const elevation = this.dataAtCurrentPosition.y;
+        const distanceRounded = parseFloat(Math.round(distance * 100) / 100).toFixed(1);
+        const elevationRounded = parseFloat(Math.round(elevation * 100) / 100).toFixed();
+        const tooltipContent = `
+        Distance : ${distanceRounded} km </br>
+        Elevation : ${elevationRounded} m`;
+        return tooltipContent;
+      },
+
+      determineTooltipPosition(chartInstance, point) {
+        const chartPosition = chartInstance.chart.canvas.getBoundingClientRect();
+        const top = chartPosition.top;
+        let maxPosXforLine = chartPosition.right - this.tooltipWidth;
+        let xPos = this.point.x;
+        let yPos = top;
+
+        if (point.x >= maxPosXforLine - 5) {
+          xPos -= this.tooltipWidth;
+        }
+
+        return {
+          x: xPos,
+          y: yPos
+        };
+      },
+
+      getDataAtXpos: function (chartInstance, event) {
+        const dataSet = 0; //  assume only one dataset
+
+        const dataIndexAtXposition = chartInstance.getElementsAtXAxis(event)[dataSet]._index;
+
+        const dataAtindex = chartInstance.data.datasets[dataSet].data[dataIndexAtXposition];
+        return dataAtindex;
+      },
+      ensureTooltipElementExists: function (chartInstance) {
+        if (typeof this.tooltipElement === 'undefined') {
+          this.tooltipElement = document.createElement('div');
+          this.tooltipElement.id = 'output';
+          this.tooltipElement.innerHTML = '';
+          this.tooltipElement.style.opacity = 0;
+          chartInstance.canvas.parentNode.appendChild(this.tooltipElement);
+        }
+      }
+    };
+    chart.pluginService.register(vLine);
+
     // source/js/main.js
     let ctx = document.getElementById('myChart');
     const brandOrange = ['rgba(255, 179, 74, 1)'];
     new chart(ctx, {
-      plugins: verticalLineAtMouse,
+      plugins: vLine,
       type: 'line',
       data: {
         datasets: [{
@@ -24679,15 +24803,14 @@
         }]
       },
       options: {
-        customLine: {
-          color: 'black'
+        animation: {
+          duration: 0
         },
         tooltips: {
           enabled: false,
-          animationDuration: 0,
-          mode: 'index',
-          custom: customTooltips,
-          position: 'custom',
+          // animationDuration: 0,
+          // custom: customTooltips,
+          // position: 'custom',
           intersect: false
         },
         legend: {
@@ -24732,200 +24855,7 @@
         }
       }
     });
-    var verticalLineAtMouse = {
-      defaultOptions: {
-        strokeStyle: 'black',
-        lineWidth: 0.5
-      },
-      beforeEvent: function (chart$$1, event) {
-        chart$$1.options.customLine.visible = false;
-
-        if (event.type === 'mousemove') {
-          let mouseXPos = event.x;
-          let mouseYPos = event.y;
-          let chartArea = event.chart.chartArea;
-
-          if (mouseXPos >= chartArea.left && mouseXPos <= chartArea.right && mouseYPos <= chartArea.bottom && mouseYPos >= chartArea.top) {
-            chart$$1.options.customLine.xPosition = mouseXPos;
-            chart$$1.options.customLine.visible = true;
-          }
-        }
-      },
-      afterDraw: function (chart$$1) {
-        if (chart$$1.options.customLine.visible) {
-          var ctx = chart$$1.chart.ctx;
-          var chartArea = chart$$1.chartArea;
-          var xPosition = chart$$1.options.customLine.xPosition;
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(xPosition, chartArea.bottom);
-          ctx.lineTo(xPosition, chartArea.top);
-          ctx.strokeStyle = 'black';
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
-    };
-    chart.pluginService.register(verticalLineAtMouse);
-
-    function customTooltips(tooltip) {
-      // Tooltip Element
-      var tooltipElment = document.getElementById('chartjs-tooltip');
-
-      if (!tooltipElment) {
-        tooltipElment = document.createElement('div');
-        tooltipElment.id = 'chartjs-tooltip';
-        tooltipElment.innerHTML = '<div></div>';
-
-        this._chart.canvas.parentNode.appendChild(tooltipElment);
-      } // Hide if no tooltip
-
-
-      if (tooltip.opacity === 0) {
-        tooltipElment.style.opacity = 0;
-        return;
-      } // Set caret Position
-
-
-      tooltipElment.classList.remove('above', 'below', 'no-transform'); // console.log(tooltip);
-
-      if (tooltip.yAlign) {
-        tooltipElment.classList.add(tooltip.yAlign);
-      } else {
-        tooltipElment.classList.add('no-transform');
-      }
-
-      tooltip.xAlign = 'left';
-
-      function getBody(bodyItem) {
-        return bodyItem.lines;
-      }
-
-      var positionY = this._chart.canvas.offsetTop;
-      var positionX = this._chart.canvas.offsetLeft;
-      let size = 120;
-      let offset = 0;
-      let something = determineAlignment(this._chart.tooltip, size);
-
-      if (something.xAlign === 'left') {
-        offset = size + positionX + 4;
-      } // Set Text
-
-
-      if (tooltip.body) {
-        var mouseXrelativeToChartData = this._chart.tooltip._eventPosition.x - this._chart.chartArea.left;
-        let distance = tooltip.title[0] || [];
-        let elevation = tooltip.body.map(getBody)[0][0];
-        let distanceRounded = parseFloat(Math.round(distance * 100) / 100).toFixed(1);
-        let elevationRounded = parseFloat(Math.round(elevation * 100) / 100).toFixed();
-        var innerHtml = `dist: ${distanceRounded}km</br>
-        elevation: ${elevationRounded}m</br>
-        Align  ${something.xAlign} </br>`;
-        var contentDiv = tooltipElment.querySelector('div');
-        contentDiv.innerHTML = innerHtml;
-      } // window.lager = this._chart;
-      // console.log(this._chart);
-      // Display, position, and set styles for font
-
-
-      tooltipElment.style.opacity = 1;
-      tooltipElment.style.left = mouseXrelativeToChartData - positionX + offset + 'px';
-      tooltipElment.style.top = positionY + 'px';
-      tooltipElment.style.fontFamily = tooltip._bodyFontFamily;
-      tooltipElment.style.fontSize = tooltip.bodyFontSize + 'px';
-      tooltipElment.style.fontStyle = tooltip._bodyFontStyle;
-      tooltipElment.style.padding = tooltip.yPadding + 'px ' + tooltip.xPadding + 'px';
-    }
-
-    function determineAlignment(tooltip, size) {
-      var model = tooltip._model;
-      var chart$$1 = tooltip._chart;
-      var chartArea = tooltip._chart.chartArea;
-      var xAlign = 'center';
-      var yAlign = 'center';
-
-      if (model.y < size.height) {
-        yAlign = 'top';
-      } else if (model.y > chart$$1.height - size.height) {
-        yAlign = 'bottom';
-      }
-
-      var lf, rf; // functions to determine left, right alignment
-
-      var olf, orf; // functions to determine if left/right alignment causes tooltip to go outside chart
-
-      var yf; // function to get the y alignment if the tooltip goes outside of the left or right edges
-
-      var midX = (chartArea.left + chartArea.right) / 2;
-      var midY = (chartArea.top + chartArea.bottom) / 2;
-
-      if (yAlign === 'center') {
-        lf = function (x) {
-          return x <= midX;
-        };
-
-        rf = function (x) {
-          return x > midX;
-        };
-      } else {
-        lf = function (x) {
-          return x <= size.width / 2;
-        };
-
-        rf = function (x) {
-          return x >= chart$$1.width - size.width / 2;
-        };
-      }
-
-      olf = function (x) {
-        return x + size.width + model.caretSize + model.caretPadding > chart$$1.width;
-      };
-
-      orf = function (x) {
-        return x - size.width - model.caretSize - model.caretPadding < 0;
-      };
-
-      yf = function (y) {
-        return y <= midY ? 'top' : 'bottom';
-      };
-
-      if (lf(model.x)) {
-        xAlign = 'left'; // Is tooltip too wide and goes over the right side of the chart.?
-
-        if (olf(model.x)) {
-          xAlign = 'center';
-          yAlign = yf(model.y);
-        }
-      } else if (rf(model.x)) {
-        xAlign = 'right'; // Is tooltip too wide and goes outside left edge of canvas?
-
-        if (orf(model.x)) {
-          xAlign = 'center';
-          yAlign = yf(model.y);
-        }
-      }
-
-      var opts = tooltip._options;
-      return {
-        xAlign: opts.xAlign ? opts.xAlign : xAlign,
-        yAlign: opts.yAlign ? opts.yAlign : yAlign
-      };
-    }
-
-    chart.Tooltip.positioners.custom = function (elements, mousePosition) {
-      //check to see if mouse is within the chart not the canvas. 
-      if (!elements.length) {
-        return false;
-      }
-
-      return {
-        x: mousePosition.x,
-        y: 10
-      };
-    };
     /* *********************** utils *********************** */
-
 
     function maxDistance(chartData) {
       // max distance is the last point in the distance/elevation array

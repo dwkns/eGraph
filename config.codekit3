@@ -2,6 +2,14 @@
 "AAInfo": "This is a CodeKit 3 project config file. MODIFYING THE CONTENTS OF THIS FILE IS A POOR LIFE DECISION. Doing so will cause CodeKit to crash and/or corrupt your project. I know it looks like JSON, but it is *not*. Many numbers in this file are 64-bit long long bitFlags, which JSON does not support. These numbers *cannot* be treated as discrete values and if you attempt to parse this file as standard JSON with any public JSON parser, these values will be corrupted. This file is not backwards-compatible with CodeKit 1 or 2. For more information, see https://codekitapp.com/",
 "buildSteps": [
 	{
+		"itemsToProcess": [
+			"/source/index.html"
+			],
+		"name": "New \"Process Certain Files\" Step",
+		"stepType": 0,
+		"uuidString": "26CE2CB2-C05F-4997-A33A-1EBF2BC80877"
+		},
+	{
 		"name": "Process All Remaining Files and Folders",
 		"stepType": 1,
 		"uuidString": "B8ED7D5D-802B-41EE-BCDF-2897373531D9"
@@ -67,7 +75,7 @@
 	"/source/index.html": {
 		"cB": 0,
 		"ft": 8192,
-		"oA": 0,
+		"oA": 2,
 		"oAP": "/build/index.html",
 		"oF": 1
 		},
@@ -95,6 +103,16 @@
 		"oA": 0,
 		"oAP": "/source/js/main.js",
 		"oF": 3,
+		"sC": 0,
+		"tS": 0
+		},
+	"/source/js/vLine.js": {
+		"ft": 64,
+		"ma": 0,
+		"mi": 0,
+		"oA": 1,
+		"oAP": "/build/min/vLine.js",
+		"oF": 1,
 		"sC": 0,
 		"tS": 0
 		},
@@ -151,7 +169,7 @@
 	"displayValueWasSetByUser": 0,
 	"iconImageName": "meme-leo",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 563998365.06778097
+	"lastBuiltDate": 564363060.46941197
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
