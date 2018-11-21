@@ -24677,7 +24677,7 @@
     var vLine = {
       id: 'vLine',
       showTooltip: false,
-      tooltipWidth: 120,
+      tooltipWidth: 100,
       point: {
         x: 0,
         y: 0
@@ -24686,12 +24686,16 @@
         x: 0,
         y: 0
       },
-      lineStrokeStyle: 'black',
-      lineWidth: 0.5,
+      lineStrokeStyle: '#000000',
+      lineWidth: 1,
       // beforeInit: function(chartInstance, pluginOptions)
       beforeInit: function (chartInstance) {
         this.ensureTooltipElementExists(chartInstance);
         this.chartArea = chartInstance; // ensure that chartArea is not undefined.
+
+        this.dataSet = chartInstance.data.datasets[0].data;
+        this.routeDistance = this.dataSet[this.dataSet.length - 1].x;
+        console.log(chartInstance);
       },
       // beforeEvent: function(chartInstance, event, pluginOptions)
       beforeEvent: function (chartInstance, event) {
@@ -24728,41 +24732,58 @@
           ctx.restore();
           let tooltipPosition = this.determineTooltipPosition(chartInstance, this.point);
           this.tooltipElement.innerHTML = `${this.getTooltipContent()}`;
-          this.tooltipElement.style.opacity = 1;
-          this.tooltipElement.style.position = 'absolute';
-          this.tooltipElement.style.width = this.tooltipWidth;
-          this.tooltipElement.style.backgroundColor = 'red';
-          this.tooltipElement.style.pointerEvents = 'none';
-          this.tooltipElement.style.left = tooltipPosition.x + 'px';
-          this.tooltipElement.style.top = tooltipPosition.y + 'px';
+          this.tooltipElement.setAttribute('style', `
+                width:${this.tooltipWidth}px;
+                opacity: 1;
+                position: absolute;
+                pointer-events: none;
+                font-size: 10px;
+                left: ${tooltipPosition.x}px;
+                top: ${tooltipPosition.y}px;
+                background-color: white;
+                border-style: solid;
+                border-width: 1px;
+                `);
+          this.tooltipElement.style.width = this.tooltipWidth; // this.tooltipElement.style.opacity = 1;
+          // this.tooltipElement.style.position = 'absolute';
+          // this.tooltipElement.style.pointerEvents = 'none';
+          // this.tooltipElement.style.left = tooltipPosition.x + 'px';
+          // this.tooltipElement.style.top = tooltipPosition.y + 'px';
         }
       },
 
       getTooltipContent() {
         const distance = this.dataAtCurrentPosition.x;
         const elevation = this.dataAtCurrentPosition.y;
+        const percentageThroughRoute = distance / this.routeDistance * 100;
         const distanceRounded = parseFloat(Math.round(distance * 100) / 100).toFixed(1);
         const elevationRounded = parseFloat(Math.round(elevation * 100) / 100).toFixed();
+        this.percentageThroughRoute = parseFloat(Math.round(percentageThroughRoute * 100) / 100).toFixed(2);
         const tooltipContent = `
-        Distance : ${distanceRounded} km </br>
-        Elevation : ${elevationRounded} m`;
+        Distance   : ${distanceRounded} km </br>
+        Elevation  : ${elevationRounded} m </br>
+        % of route : ${this.percentageThroughRoute}`;
         return tooltipContent;
       },
 
       determineTooltipPosition(chartInstance, point) {
         const chartPosition = chartInstance.chart.canvas.getBoundingClientRect();
-        const top = chartPosition.top;
-        let maxPosXforLine = chartPosition.right - this.tooltipWidth;
         let xPos = this.point.x;
-        let yPos = top;
+        let yPos = chartPosition.top;
+        const maxPosXforLine = chartPosition.right - this.tooltipWidth;
+        let offset = 8;
 
-        if (point.x >= maxPosXforLine - 5) {
-          xPos -= this.tooltipWidth;
+        if (point.x >= maxPosXforLine) {
+          //tooltip left
+          xPos -= this.tooltipWidth - offset + 7;
+        } else {
+          //tooltip left
+          xPos = this.point.x + offset + 5;
         }
 
         return {
           x: xPos,
-          y: yPos
+          y: yPos + 6
         };
       },
 
