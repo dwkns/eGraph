@@ -24541,68 +24541,68 @@
     /**
      * @namespace Chart
      */
-    var Chart = core();
+    var Chart$1 = core();
 
-    Chart.helpers = helpers$1;
+    Chart$1.helpers = helpers$1;
 
     // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
-    core_helpers(Chart);
+    core_helpers(Chart$1);
 
-    Chart.Animation = core_animation;
-    Chart.animationService = core_animations;
-    Chart.defaults = core_defaults;
-    Chart.Element = core_element;
-    Chart.elements = elements;
-    Chart.Interaction = core_interaction;
-    Chart.layouts = core_layouts;
-    Chart.platform = platform;
-    Chart.plugins = core_plugins;
-    Chart.Scale = core_scale;
-    Chart.scaleService = core_scaleService;
-    Chart.Ticks = core_ticks;
-    Chart.Tooltip = core_tooltip;
+    Chart$1.Animation = core_animation;
+    Chart$1.animationService = core_animations;
+    Chart$1.defaults = core_defaults;
+    Chart$1.Element = core_element;
+    Chart$1.elements = elements;
+    Chart$1.Interaction = core_interaction;
+    Chart$1.layouts = core_layouts;
+    Chart$1.platform = platform;
+    Chart$1.plugins = core_plugins;
+    Chart$1.Scale = core_scale;
+    Chart$1.scaleService = core_scaleService;
+    Chart$1.Ticks = core_ticks;
+    Chart$1.Tooltip = core_tooltip;
 
-    core_controller(Chart);
-    core_datasetController(Chart);
+    core_controller(Chart$1);
+    core_datasetController(Chart$1);
 
-    scale_linearbase(Chart);
-    scale_category(Chart);
-    scale_linear(Chart);
-    scale_logarithmic(Chart);
-    scale_radialLinear(Chart);
-    scale_time(Chart);
+    scale_linearbase(Chart$1);
+    scale_category(Chart$1);
+    scale_linear(Chart$1);
+    scale_logarithmic(Chart$1);
+    scale_radialLinear(Chart$1);
+    scale_time(Chart$1);
 
     // Controllers must be loaded after elements
     // See Chart.core.datasetController.dataElementType
-    controller_bar(Chart);
-    controller_bubble(Chart);
-    controller_doughnut(Chart);
-    controller_line(Chart);
-    controller_polarArea(Chart);
-    controller_radar(Chart);
-    controller_scatter(Chart);
+    controller_bar(Chart$1);
+    controller_bubble(Chart$1);
+    controller_doughnut(Chart$1);
+    controller_line(Chart$1);
+    controller_polarArea(Chart$1);
+    controller_radar(Chart$1);
+    controller_scatter(Chart$1);
 
-    Chart_Bar(Chart);
-    Chart_Bubble(Chart);
-    Chart_Doughnut(Chart);
-    Chart_Line(Chart);
-    Chart_PolarArea(Chart);
-    Chart_Radar(Chart);
-    Chart_Scatter(Chart);
+    Chart_Bar(Chart$1);
+    Chart_Bubble(Chart$1);
+    Chart_Doughnut(Chart$1);
+    Chart_Line(Chart$1);
+    Chart_PolarArea(Chart$1);
+    Chart_Radar(Chart$1);
+    Chart_Scatter(Chart$1);
 
     // Loading built-in plugins
 
     for (var k in plugins) {
     	if (plugins.hasOwnProperty(k)) {
-    		Chart.plugins.register(plugins[k]);
+    		Chart$1.plugins.register(plugins[k]);
     	}
     }
 
-    Chart.platform.initialize();
+    Chart$1.platform.initialize();
 
-    var chart = Chart;
+    var chart = Chart$1;
     if (typeof window !== 'undefined') {
-    	window.Chart = Chart;
+    	window.Chart = Chart$1;
     }
 
     // DEPRECATIONS
@@ -24614,7 +24614,7 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.Legend = plugins.legend._element;
+    Chart$1.Legend = plugins.legend._element;
 
     /**
      * Provided for backward compatibility, not available anymore
@@ -24623,7 +24623,7 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.Title = plugins.title._element;
+    Chart$1.Title = plugins.title._element;
 
     /**
      * Provided for backward compatibility, use Chart.plugins instead
@@ -24632,7 +24632,7 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.pluginService = Chart.plugins;
+    Chart$1.pluginService = Chart$1.plugins;
 
     /**
      * Provided for backward compatibility, inheriting from Chart.PlugingBase has no
@@ -24642,7 +24642,7 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.PluginBase = Chart.Element.extend({});
+    Chart$1.PluginBase = Chart$1.Element.extend({});
 
     /**
      * Provided for backward compatibility, use Chart.helpers.canvas instead.
@@ -24651,7 +24651,7 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.canvasHelpers = Chart.helpers.canvas;
+    Chart$1.canvasHelpers = Chart$1.helpers.canvas;
 
     /**
      * Provided for backward compatibility, use Chart.layouts instead.
@@ -24660,12 +24660,12 @@
      * @todo remove at version 3
      * @private
      */
-    Chart.layoutService = Chart.layouts;
+    Chart$1.layoutService = Chart$1.layouts;
 
     /*eslint-disable no-console*/
-
-    chart.vLine = chart.vLine || {};
-
+    // Draws a verical line under the cursor on a Chart.js chart.
+    // // Configure plugin namespace
+    // Chart.vLine = Chart.vLine || {};
     function pointInRectange(point, rectangle) {
       if (point.x >= rectangle.left && point.x <= rectangle.right && point.y <= rectangle.bottom && point.y >= rectangle.top) {
         return true;
@@ -24695,7 +24695,6 @@
 
         this.dataSet = chartInstance.data.datasets[0].data;
         this.routeDistance = this.dataSet[this.dataSet.length - 1].x;
-        console.log(chartInstance);
       },
       // beforeEvent: function(chartInstance, event, pluginOptions)
       beforeEvent: function (chartInstance, event) {
@@ -24805,11 +24804,30 @@
         }
       }
     };
-    chart.pluginService.register(vLine);
+    Chart.pluginService.register(vLine);
 
     // source/js/main.js
-    let ctx = document.getElementById('myChart');
     const brandOrange = ['rgba(255, 179, 74, 1)'];
+
+    var yAxesFormatter = function (value) {
+      if (value != 0) {
+        return value + ' m';
+      } else {
+        return value;
+      }
+    };
+
+    const xAxesFomatter = function (value, index, values) {
+      if (value === 0) {
+        return value; // No 'km' on zero
+      } else {
+        if (index === values.length - 1) return ''; // No last value
+
+        return value + ' km'; // Everything else has a km attached.
+      }
+    };
+
+    let ctx = document.getElementById('myChart');
     new chart(ctx, {
       plugins: vLine,
       type: 'line',
@@ -24844,13 +24862,7 @@
               max: undefined,
               min: 0,
               stepSize: 50,
-              callback: function (value) {
-                if (value != 0) {
-                  return value + ' m';
-                } else {
-                  return value;
-                }
-              }
+              callback: yAxesFormatter
             }
           }],
           xAxes: [{
@@ -24862,15 +24874,7 @@
               min: 0,
               stepSize: 10,
               maxTicksLimit: 12,
-              callback: function (value, index, values) {
-                if (value === 0) {
-                  return value; // No 'km' on zero
-                } else {
-                  if (index === values.length - 1) return ''; // No last value
-
-                  return value + ' km'; // Everything else has a km attached.
-                }
-              }
+              callback: xAxesFomatter
             }
           }]
         }

@@ -1,8 +1,8 @@
 /*eslint-disable no-console*/
-import Chart from 'chart.js';
+// Draws a verical line under the cursor on a Chart.js chart.
 
-// Configure plugin namespace
-Chart.vLine = Chart.vLine || {};
+// // Configure plugin namespace
+// Chart.vLine = Chart.vLine || {};
 
 function pointInRectange(point, rectangle) {
 
@@ -31,7 +31,7 @@ export var vLine = {
         this.chartArea = chartInstance; // ensure that chartArea is not undefined.
         this.dataSet = chartInstance.data.datasets[0].data;
         this.routeDistance = this.dataSet[this.dataSet.length - 1].x;
-        console.log(chartInstance);
+    
     },
 
     // beforeEvent: function(chartInstance, event, pluginOptions)

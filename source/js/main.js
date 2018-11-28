@@ -5,13 +5,32 @@ import { elevationData } from './elevationData.js';
 import Chart from 'chart.js';
 import { vLine } from './vLine.js';
 
-let ctx = document.getElementById('myChart');
-
 const brandOrange = ['rgba(255, 179, 74, 1)'];
+
+var yAxesFormatter = function(value) {
+    if (value != 0) {
+        return value + ' m';
+    } else {
+        return value;
+    }
+};
+
+const xAxesFomatter = function(value, index, values) {
+    if (value === 0) {
+        return value; // No 'km' on zero
+    } else {
+        if (index === values.length - 1) return ''; // No last value
+        return value + ' km'; // Everything else has a km attached.
+    }
+};
+
+
+
+let ctx = document.getElementById('myChart');
 
 new Chart(ctx, {
 
-    plugins:  vLine ,
+    plugins: vLine,
     type: 'line',
     data: {
         datasets: [{
@@ -27,7 +46,6 @@ new Chart(ctx, {
         animation: {
             duration: 0
         },
-
         tooltips: {
             enabled: false,
             // animationDuration: 0,
@@ -46,13 +64,7 @@ new Chart(ctx, {
                     max: undefined,
                     min: 0,
                     stepSize: 50,
-                    callback: function(value) {
-                        if (value != 0) {
-                            return value + ' m';
-                        } else {
-                            return value;
-                        }
-                    }
+                    callback: yAxesFormatter
                 }
             }],
             xAxes: [{
@@ -64,15 +76,8 @@ new Chart(ctx, {
                     min: 0,
                     stepSize: 10,
                     maxTicksLimit: 12,
-                    callback: function(value, index, values) {
-                        if (value === 0) {
-                            return value; // No 'km' on zero
-                        } else {
-                            if (index === values.length - 1) return ''; // No last value
-                            return value + ' km'; // Everything else has a km attached.
-                        }
+                    callback: xAxesFomatter
 
-                    }
                 }
             }]
         }
