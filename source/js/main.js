@@ -4,31 +4,15 @@
 import { elevationData } from './elevationData.js';
 import Chart from 'chart.js';
 import { vLine } from './vLine.js';
-
-const brandOrange = ['rgba(255, 179, 74, 1)'];
-
-var yAxesFormatter = function(value) {
-    if (value != 0) {
-        return value + ' m';
-    } else {
-        return value;
-    }
-};
-
-const xAxesFomatter = function(value, index, values) {
-    if (value === 0) {
-        return value; // No 'km' on zero
-    } else {
-        if (index === values.length - 1) return ''; // No last value
-        return value + ' km'; // Everything else has a km attached.
-    }
-};
+import {brandOrange, yAxesFormatter, xAxesFormatter, maxDistance, ElevationGraph} from './elevationGraph.js';
 
 
+let graphContex = document.getElementById('myChart');
 
-let ctx = document.getElementById('myChart');
+const eGraph= new ElevationGraph(graphContex);
 
-new Chart(ctx, {
+
+new Chart(graphContex, {
 
     plugins: vLine,
     type: 'line',
@@ -76,7 +60,7 @@ new Chart(ctx, {
                     min: 0,
                     stepSize: 10,
                     maxTicksLimit: 12,
-                    callback: xAxesFomatter
+                    callback: xAxesFormatter
 
                 }
             }]
@@ -84,11 +68,3 @@ new Chart(ctx, {
     }
 });
 
-/* *********************** utils *********************** */
-
-function maxDistance(chartData) {
-    // max distance is the last point in the distance/elevation array
-    let maxDistance = chartData[chartData.length - 1]['x'];
-    maxDistance = Math.round(maxDistance * 100) / 100; // Round to 2 decimal places
-    return maxDistance;
-}

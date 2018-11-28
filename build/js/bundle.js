@@ -24806,18 +24806,16 @@
     };
     Chart.pluginService.register(vLine);
 
-    // source/js/main.js
+    /*eslint-disable no-unused-vars*/
     const brandOrange = ['rgba(255, 179, 74, 1)'];
-
-    var yAxesFormatter = function (value) {
+    function yAxesFormatter(value) {
       if (value != 0) {
         return value + ' m';
       } else {
         return value;
       }
-    };
-
-    const xAxesFomatter = function (value, index, values) {
+    }
+    function xAxesFormatter(value, index, values) {
       if (value === 0) {
         return value; // No 'km' on zero
       } else {
@@ -24825,10 +24823,18 @@
 
         return value + ' km'; // Everything else has a km attached.
       }
-    };
+    }
+    function maxDistance(chartData) {
+      // max distance is the last point in the distance/elevation array
+      let maxDistance = chartData[chartData.length - 1]['x'];
+      maxDistance = Math.round(maxDistance * 100) / 100; // Round to 2 decimal places
 
-    let ctx = document.getElementById('myChart');
-    new chart(ctx, {
+      return maxDistance;
+    }
+
+    // source/js/main.js
+    let graphContex = document.getElementById('myChart');
+    new chart(graphContex, {
       plugins: vLine,
       type: 'line',
       data: {
@@ -24874,20 +24880,11 @@
               min: 0,
               stepSize: 10,
               maxTicksLimit: 12,
-              callback: xAxesFomatter
+              callback: xAxesFormatter
             }
           }]
         }
       }
     });
-    /* *********************** utils *********************** */
-
-    function maxDistance(chartData) {
-      // max distance is the last point in the distance/elevation array
-      let maxDistance = chartData[chartData.length - 1]['x'];
-      maxDistance = Math.round(maxDistance * 100) / 100; // Round to 2 decimal places
-
-      return maxDistance;
-    }
 
 }());
